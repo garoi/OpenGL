@@ -1,6 +1,7 @@
 #include <GL/gl.h>
 #include <GL/freeglut.h>
 
+
 void renderScene(void) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glBegin(GL_TRIANGLES);
@@ -12,8 +13,12 @@ void renderScene(void) {
 }
 
 void resize(int w, int h) {
-  if (
-  glViewport(0, 0, ample, alt);
+  if (w > h){
+      glViewport(w/2-h/2, 0, h, h);
+  }
+  else {
+    glViewport(0, h/2-w/2, w, w);
+  }
 }
 
 int main(int argc, char**argv) {
@@ -22,7 +27,7 @@ int main(int argc, char**argv) {
   glutInitWindowSize(600, 600);
   glutCreateWindow("IDI: Practiques OpenGL");
   glutDisplayFunc(renderScene);
-  
+
   glutReshapeFunc(resize);
 
   glutMainLoop();
