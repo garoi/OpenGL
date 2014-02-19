@@ -27,6 +27,7 @@ void renderScene(void) {
 }
 
 void resize(int w, int h) {
+  //rediemnsio viewport
   if (w > h){
       glViewport(w / 2 - h / 2, 0, h, h);
   }
@@ -83,6 +84,8 @@ void pintaTriangle(int idBoto, int presONo, int x, int y) {
     vertex[contClick] = x;
     vertex[contClick+1] = (height - y);
 
+
+    //Converteix coordenades
     if (vertex[contClick] < (float) width / 2) {
       vertex[contClick] = 1 - ((float) vertex[contClick] / ((float) width / 2));
       vertex[contClick] *= -1;
@@ -105,6 +108,8 @@ void pintaTriangle(int idBoto, int presONo, int x, int y) {
       vertex[contClick+1] = 0.0;
     }
 
+    //fins aquí
+
     contClick += 2;
     if (contClick >= 5) {
       contClick = 0;
@@ -117,22 +122,25 @@ int main(int argc, char**argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
   glutInitWindowSize(600, 600);
-  height = 600;
-  width = 600;
-  vertex[0] = -0.5;
-  vertex[1] = -0.5;
-  vertex[2] = 0.5;
-  vertex[3] = -0.5;
-  vertex[4] = 0.0;
-  vertex[5] = 0.5;
 
-  glutCreateWindow("IDI: Practiques OpenGL");
+  glutCreateWindow("IDI: Examen OpenGL");
+
+  //Triar color inicial
   glClearColor(blanc, blanc, blanc, 0.0);
+
+  //Pinta la escena
   glutDisplayFunc(renderScene);
 
+  //detecta click de ratoli, @params int idBoto, int presONo, int x, int y
   glutMouseFunc(pintaTriangle);
+
+  //detecta click+arrastrar @params int x, int y
   glutMotionFunc(pinta);
+
+  //detecta tecles de teclat @params unsigned char caracter, int x, int y
   glutKeyboardFunc(estat);
+
+  //detecta redimensio finestra
   glutReshapeFunc(resize);
 
   glutMainLoop();
