@@ -17,7 +17,7 @@ double angleY = 0.0;
 double PosX = 0.75;
 double PosZ = 0.75;
 bool modeLinea = false;
-bool enable = true;
+bool enable = false;
 bool legomanMove = false;
 vector<double> xyz(3, 0.0);
 vector<double> xeyeze(3, 1);
@@ -32,7 +32,11 @@ struct Contenidor {
     double yMin;
     double zMax;
     double zMin;
+    vector<double> centre;
+    double factorEscalat;
 };
+
+Contenidor cont;
 
 void initAngles() {
     anglesCamera[0] = 90;
@@ -60,17 +64,19 @@ void initGL (int argc, const char *argv[]) {
     width = 600;
     initAngles();
     glutInit(&argc, (char **)argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(height, width);
     glClearColor(negre, negre, negre, 0.0);
     glutCreateWindow("IDI: Practiques OpenGL");
+    glDepthFunc(GL_LEQUAL);
+    glDepthRange(-1,1);
     glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
     glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
     glLoadIdentity();
     glOrtho(-1, 1, -1, 1, -1, 1);
     glMatrixMode(GL_MODELVIEW);
-    m.load("legoman.obj");
+    m.load("Patricio.obj");
 }
 
 void rotar() {
@@ -87,8 +93,7 @@ void escalar(){
     glScaled(xeyeze[0], xeyeze[1], xeyeze[2]);
 }
 
-Contenidor calcularContenidor(const std::vector<Vertex> &v) {
-    Contenidor cont;
+void calcularContenidor(const std::vector<Vertex> &v) {
     cont.xMax = v[0];
     cont.yMax = v[1];
     cont.zMax = v[2];
@@ -112,10 +117,9 @@ Contenidor calcularContenidor(const std::vector<Vertex> &v) {
             if (cont.zMin > v[i]) cont.zMin = v[i];
         }
     }
-    return cont;
 }
 
-double calcularEscalat(Contenidor& cont) {
+double calcularEscalat() {
     //Busco quin es el costat mes gran
     double costatX = cont.xMax - (double) cont.xMin;
     double costatY = cont.yMax - (double) cont.yMin;
@@ -125,22 +129,21 @@ double calcularEscalat(Contenidor& cont) {
     else return 2.0 / (double) costatZ;
 }
 
-vector<double> calcularCentre(Contenidor& cont) {
-    vector<double> centre(3, 0.0);
-    centre[0] = (-1.0)*((cont.xMin + cont.xMax) / 2.0);
-    centre[1] = (-1.0)*(cont.yMin);
-    centre[2] = (-1.0)*((cont.zMin + cont.zMax) / 2.0);
-    return centre;
+void calcularCentre() {
+    cont.centre = vector<double>(3, 0.0);
+    cont.centre[0] = (-1.0)*((cont.xMin + cont.xMax) / 2.0);
+    cont.centre[1] = (-1.0)*(cont.yMin);
+    cont.centre[2] = (-1.0)*((cont.zMin + cont.zMax) / 2.0);
 }
 
 void modelOBJ() {
     const std::vector<Face> f = m.faces();
     const std::vector<Vertex> v = m.vertices();
-    Contenidor cont = calcularContenidor(v);
-    double factorEscalat = calcularEscalat(cont);
-    glScaled(0.25*factorEscalat, 0.25*factorEscalat, 0.25*factorEscalat);
-    vector<double> centreContenidor = calcularCentre(cont);
-    glTranslated(centreContenidor[0], centreContenidor[1], centreContenidor[2]);
+    calcularContenidor(v);
+    cont.factorEscalat = calcularEscalat();
+    glScaled(0.25*cont.factorEscalat, 0.25*cont.factorEscalat, 0.25*cont.factorEscalat);
+    calcularCentre();
+    glTranslated(cont.centre[0], cont.centre[1], cont.centre[2]);
     for (int i = 0; i < f.size(); ++i) {
         glBegin(GL_TRIANGLES);
             glColor3f(Materials[f[i].mat].diffuse[0], Materials[f[i].mat].diffuse[1], Materials[f[i].mat].diffuse[2]);
@@ -183,6 +186,7 @@ void ninot() {
 }
 
 void model() {
+    glLoadIdentity();
     glPushMatrix();
         rotar();
         glTranslated(PosX, -0.4, PosZ);
@@ -260,7 +264,7 @@ void teclat(unsigned char caracter, int x, int y) {
         cout << " - prement ’r’ rotem el ninot de neu" << endl;
         cout << " - prement ’s’ escalem el ninot de neu" << endl;
         cout << " - prement ’l’ canviem entre GL_FILL i GL_LINE" << endl;
-        cout << " - prement ’p’ canviem la profunditat" << endl;
+        cout << " - prement ’p’ canviem la profunditat, fins que es pica la 'p' no s'activa la profunditat" << endl;
         cout << " - prement ’c’ el legoman es mou, per tornar a la posicio inicial, clic 2 cops a la 'c'" << endl;
     }
     else if  (caracter == 27) {
@@ -323,7 +327,6 @@ void teclat(unsigned char caracter, int x, int y) {
 }
 
 void move(int x, int y) {
-    cout << "El mode es " << mode << endl;
     if (mode == 'c') {
         xyz = vector<double>(3, 0.0);
         if (x > xAnterior) {
