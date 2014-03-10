@@ -68,15 +68,13 @@ void initGL (int argc, const char *argv[]) {
     glutInitWindowSize(height, width);
     glClearColor(negre, negre, negre, 0.0);
     glutCreateWindow("IDI: Practiques OpenGL");
-    glDepthFunc(GL_LEQUAL);
-    glDepthRange(-1,1);
-    glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
+    glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
     glLoadIdentity();
     glOrtho(-1, 1, -1, 1, -1, 1);
     glMatrixMode(GL_MODELVIEW);
-    m.load("Patricio.obj");
+    m.load("legoman.obj");
 }
 
 void rotar() {
@@ -161,7 +159,7 @@ void ninot() {
         rotar();
         escalar();
         glColor3f(1,1,1);
-        glutWireSphere(0.4, 20, 20);
+        glutSolidSphere(0.4, 20, 20);
     glPopMatrix();
 
     glLoadIdentity();
@@ -170,7 +168,7 @@ void ninot() {
         rotar();
         escalar();
         glTranslated(0, 0.6, 0);
-        glutWireSphere(0.2, 20, 20);
+        glutSolidSphere(0.2, 20, 20);
     glPopMatrix();
 
     glLoadIdentity();
@@ -181,7 +179,7 @@ void ninot() {
         glTranslated(0.1, 0.6, 0);
         glRotated(90, 0, 1, 0);
         glColor3d(1, 0, 0);
-        glutWireCone(0.1, 0.2, 20, 20);
+        glutSolidCone(0.1, 0.2, 20, 20);
     glPopMatrix();
 }
 
